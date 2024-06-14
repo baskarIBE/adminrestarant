@@ -74,6 +74,11 @@
   .bocont {
     padding: 20px 40px;
 }
+.addcont input {
+  border: 1px solid;
+}
+.addcont textarea#description{border: 1px solid;}
+.addcont div#category{border: 1px solid;}
     /* /product design end */
 
 

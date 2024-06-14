@@ -20,7 +20,7 @@ import { InputNumber } from 'primereact/inputnumber';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 // import './DataTableDemo.css';
-import { ProductService } from '../../Services/ProductService/ProductService';
+import { getproductall, productcrated } from '../../Services/ProductService/ProductService';
 import { Dropdown } from 'primereact/dropdown';
 
 const ProductCrud = () => {
@@ -36,6 +36,9 @@ const ProductCrud = () => {
     inventoryStatus: 'INSTOCK'
   };
 
+
+  
+
   const [products, setProducts] = useState(null);
   const [productDialog, setProductDialog] = useState(false);
   const [deleteProductDialog, setDeleteProductDialog] = useState(false);
@@ -46,12 +49,22 @@ const ProductCrud = () => {
   const [globalFilter, setGlobalFilter] = useState(null);
   const toast = useRef(null);
   const dt = useRef(null);
-  const productService = new ProductService();
-  const [categories, setCategories] = useState([]);
+  // const productService = new ProductService();
+  const [categories, setCategories] = useState([
+  { name: 'Electronics', code: 'ELECTRO' },
+  { name: 'Clothing', code: 'CLOTHING' },
+  { name: 'Books', code: 'BOOKS' },
+  ]);
 
-  useEffect(() => {
-    productService.getProducts().then((data) => setProducts(data));
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const getalldata = async () => {
+   
+    const response=await getproductall();
+    console.log(response)
+  }
+
+  // useEffect(() => {
+  //   productService.getProducts().then((data) => setProducts(data));
+  // }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const formatCurrency = (value) => {
     return value.toLocaleString('en-US', {
@@ -61,10 +74,12 @@ const ProductCrud = () => {
   };
 
   const openNew = () => {
+    // const allprodu=productget()
     setProduct(emptyProduct);
     setSubmitted(false);
     setProductDialog(true);
   };
+ 
 
   const hideDialog = () => {
     setSubmitted(false);
@@ -79,38 +94,53 @@ const ProductCrud = () => {
     setDeleteProductsDialog(false);
   };
 
-  const saveProduct = () => {
+  const saveProduct = async() => {
     setSubmitted(true);
 
     if (product.name.trim()) {
-      let _products = [...products];
+      let _products = products ? [...products] : [];
       let _product = { ...product };
-      if (product.id) {
-        const index = findIndexById(product.id);
 
-        _products[index] = _product;
-        toast.current.show({
-          severity: 'success',
-          summary: 'Successful',
-          detail: 'Product Updated',
-          life: 3000
-        });
+      if (product.id) {
+          const index = findIndexById(product.id);
+          _products[index] = _product;
+          toast.current.show({
+              severity: 'success',
+              summary: 'Successful',
+              detail: 'Product Updated',
+              life: 3000
+          });
       } else {
-        _product.id = createId();
-        _product.image = 'product-placeholder.svg';
-        _products.push(_product);
-        toast.current.show({
-          severity: 'success',
-          summary: 'Successful',
-          detail: 'Product Created',
-          life: 3000
-        });
+          _product.id = createId();
+          // productcrated(_product); // Assuming this is a function to handle the product creation on the backend
+          const res=await productcrated(_product);
+          console.log(res);
+          res.push(_product);
+        //   .then(res => {
+        //     console.log(res);
+        //     toast.current.show({
+        //         severity: 'success',
+        //         summary: 'Successful',
+        //         detail: 'Product Created',
+        //         life: 3000
+        //     });
+        // })
+        // .catch(err => {
+        //     console.error(err);
+        //     toast.current.show({
+        //         severity: 'error',
+        //         summary: 'Error',
+        //         detail: 'Product Creation Failed',
+        //         life: 3000
+        //     });
+        // });
+          
       }
 
       setProducts(_products);
       setProductDialog(false);
       setProduct(emptyProduct);
-    }
+  }
   };
 
   const editProduct = (product) => {
@@ -421,7 +451,7 @@ const ProductCrud = () => {
           globalFilter={globalFilter}
           header={header}
           className="p-datatable-customers protab"
-          emptyMessage="No products found"
+          emptyMessage={getalldata}
         >
           <Column className='selecttoo' selectionMode="multiple" headerStyle={{ width: '3rem'}} />
           <Column
@@ -478,7 +508,7 @@ const ProductCrud = () => {
         footer={productDialogFooter}
         onHide={hideDialog}
       >
-        <div className="p-field">
+        <div className="p-field addcont">
           <label htmlFor="name">Name</label>
           <InputText
             id="name"
@@ -494,7 +524,7 @@ const ProductCrud = () => {
             <small className="p-error">Name is required.</small>
           )}
         </div>
-        <div className="p-field">
+        <div className="p-field addcont">
           <label htmlFor="description">Description</label>
           <InputTextarea
             id="description"
@@ -505,7 +535,7 @@ const ProductCrud = () => {
             autoResize
           />
         </div>
-        <div className="p-field">
+        <div className="p-field addcont">
           <label htmlFor="category">Category</label>
           <Dropdown
             id="category"
@@ -516,7 +546,7 @@ const ProductCrud = () => {
             optionValue="code"
           />
         </div>
-        <div className="p-field">
+        <div className="p-field addcont">
           <label htmlFor="price">Price</label>
           <InputNumber
             id="price"
@@ -527,7 +557,7 @@ const ProductCrud = () => {
             locale="en-US"
           />
         </div>
-        <div className="p-field">
+        <div className="p-field addcont">
           <label htmlFor="quantity">Quantity</label>
           <InputNumber
             id="quantity"
@@ -535,7 +565,7 @@ const ProductCrud = () => {
             onValueChange={(e) => onInputNumberChange(e, 'quantity')}
           />
         </div>
-        <div className="p-field">
+        <div className="p-field addcont">
           <label htmlFor="rating">Rating</label>
           <Rating
             id="rating"
