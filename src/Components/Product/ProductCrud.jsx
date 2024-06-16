@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import ReactDOM from 'react-dom';
+// import ReactDOM from 'react-dom';
 import 'primeicons/primeicons.css';
 import 'primereact/resources/themes/lara-light-indigo/theme.css';
 import 'primereact/resources/primereact.css';
@@ -15,12 +15,12 @@ import { FileUpload } from 'primereact/fileupload';
 import { Rating } from 'primereact/rating';
 import { Toolbar } from 'primereact/toolbar';
 import { InputTextarea } from 'primereact/inputtextarea';
-import { RadioButton } from 'primereact/radiobutton';
+// import { RadioButton } from 'primereact/radiobutton';
 import { InputNumber } from 'primereact/inputnumber';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 // import './DataTableDemo.css';
-import { getproductall, productcrated } from '../../Services/ProductService/ProductService';
+import { Updateproall, delprodata, getproductall, manydelprodata, productcrated } from '../../Services/ProductService/ProductService';
 import { Dropdown } from 'primereact/dropdown';
 
 const ProductCrud = () => {
@@ -37,6 +37,10 @@ const ProductCrud = () => {
   };
 
 
+ 
+
+
+
   
 
   const [products, setProducts] = useState(null);
@@ -49,6 +53,7 @@ const ProductCrud = () => {
   const [globalFilter, setGlobalFilter] = useState(null);
   const toast = useRef(null);
   const dt = useRef(null);
+  
   // const productService = new ProductService();
   const [categories, setCategories] = useState([
   { name: 'Electronics', code: 'ELECTRO' },
@@ -56,15 +61,15 @@ const ProductCrud = () => {
   { name: 'Books', code: 'BOOKS' },
   ]);
 
-  const getalldata = async () => {
+  // const getalldata = async (e) => {
    
-    const response=await getproductall();
-    console.log(response)
-  }
+  //   const response=await getproductall();
+  //   console.log(response)
+  // }
 
-  // useEffect(() => {
-  //   productService.getProducts().then((data) => setProducts(data));
-  // }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    getproductall().then((data) => setProducts(data));
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const formatCurrency = (value) => {
     return value.toLocaleString('en-US', {
@@ -104,6 +109,11 @@ const ProductCrud = () => {
       if (product.id) {
           const index = findIndexById(product.id);
           _products[index] = _product;
+          const upid=_products[index].id;
+          const updata=_products[index];
+          const data={id : upid, updata:updata}
+          const proupd=await Updateproall(data);
+
           toast.current.show({
               severity: 'success',
               summary: 'Successful',
@@ -115,25 +125,13 @@ const ProductCrud = () => {
           // productcrated(_product); // Assuming this is a function to handle the product creation on the backend
           const res=await productcrated(_product);
           console.log(res);
-          res.push(_product);
-        //   .then(res => {
-        //     console.log(res);
-        //     toast.current.show({
-        //         severity: 'success',
-        //         summary: 'Successful',
-        //         detail: 'Product Created',
-        //         life: 3000
-        //     });
-        // })
-        // .catch(err => {
-        //     console.error(err);
-        //     toast.current.show({
-        //         severity: 'error',
-        //         summary: 'Error',
-        //         detail: 'Product Creation Failed',
-        //         life: 3000
-        //     });
-        // });
+          _products.push(res);
+          toast.current.show({
+            severity: 'success',
+            summary: 'Successful',
+            detail: 'Product Created',
+            life: 3000
+          });
           
       }
 
@@ -153,7 +151,10 @@ const ProductCrud = () => {
     setDeleteProductDialog(true);
   };
 
-  const deleteProduct = () => {
+  const deleteProduct = async() => {
+    
+    const res=await delprodata(product._id);
+    console.log(res);
     let _products = products.filter((val) => val.id !== product.id);
     setProducts(_products);
     setDeleteProductDialog(false);
@@ -233,8 +234,13 @@ const ProductCrud = () => {
     setDeleteProductsDialog(true);
   };
 
-  const deleteSelectedProducts = () => {
+  const deleteSelectedProducts = async() => {
     let _products = products.filter((val) => !selectedProducts.includes(val));
+    const selprodet=selectedProducts.map(products=>products._id);
+    console.log(selprodet);
+    const manydel=await manydelprodata(selprodet);
+    console.log(manydel);
+    
     setProducts(_products);
     setDeleteProductsDialog(false);
     setSelectedProducts(null);
@@ -451,7 +457,7 @@ const ProductCrud = () => {
           globalFilter={globalFilter}
           header={header}
           className="p-datatable-customers protab"
-          emptyMessage={getalldata}
+          emptyMessage="No products found"
         >
           <Column className='selecttoo' selectionMode="multiple" headerStyle={{ width: '3rem'}} />
           <Column
