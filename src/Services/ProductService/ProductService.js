@@ -42,11 +42,12 @@ const delprodata=async(id)=>{
         return logval.data;
     }
 
-// const manydelprodata=async(selprodet)=>{   
-//     const logval=await axios.delete(`${apiurl}/products/delmanydat`,selprodet)
-//     console.log(logval);
-//     return logval.data;
-// }
+const manydelprodata=async(selprodet)=>{  
+    // console.log(selprodet);
+    const logval=await axios.post(`${apiurl}/products/delmanydat`,selprodet)
+    console.log(logval);
+    return logval.data;
+}
 
 // my servicess function end delpro
 export{productcrated,getproductall,Updateproall,delprodata,manydelprodata}

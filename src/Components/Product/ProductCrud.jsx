@@ -56,9 +56,10 @@ const ProductCrud = () => {
   
   // const productService = new ProductService();
   const [categories, setCategories] = useState([
-  { name: 'Electronics', code: 'ELECTRO' },
-  { name: 'Clothing', code: 'CLOTHING' },
-  { name: 'Books', code: 'BOOKS' },
+  { name: 'Briyani', code: 'BRIYANI' },
+  { name: 'Rice', code: 'RICE' },
+  { name: 'Fride Rice', code: 'FRIDE RICE' },
+  { name: 'Veg Rice', code: 'VEG RICE' },
   ]);
 
   // const getalldata = async (e) => {
